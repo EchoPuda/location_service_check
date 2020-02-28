@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - location_service_check (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - location_service_check (from `.symlinks/plugins/location_service_check/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  location_service_check:
+    :path: ".symlinks/plugins/location_service_check/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  location_service_check: 797314da6baf8f65a9c2cbe3b6b11025911ced21
+
+PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
+
+COCOAPODS: 1.8.3

@@ -23,11 +23,11 @@ class _MyAppState extends State<MyApp> {
     bool isOpen = await LocationServiceCheck.checkLocationIsOpen;
     if (isOpen) {
       setState(() {
-        locationStatus = "定位已打开";
+        locationStatus = "Location service opened";
       });
     } else {
       setState(() {
-        locationStatus = "定位未打开";
+        locationStatus = "Location service closed";
       });
     }
   }
