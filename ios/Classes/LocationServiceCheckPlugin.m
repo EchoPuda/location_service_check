@@ -33,17 +33,15 @@
 }
 
 - (void)openSetting {
-    NSURL *url = [NSURL URLWithString:@"prefs:root=LOCATION_SERVICES"];
+    NSURL *url;
     if (@available(iOS 10.0, *)) {
-        if ([[UIApplication sharedApplication]canOpenURL:url]) {
-            [[UIApplication sharedApplication]openURL:url options:@{} completionHandler:^(BOOL success) {
-            }];
-        }
+       url = [[NSURL alloc] initWithString:UIApplicationOpenSettingsURLString];
     } else {
-        if ([[UIApplication sharedApplication]canOpenURL:url]) {
-            [[UIApplication sharedApplication]openURL:url];
-        }
-    };
+       url = [NSURL URLWithString:@"prefs:root=LOCATION_SERVICES"];
+    }
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url];
+    }
 
 }
 
