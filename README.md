@@ -6,7 +6,7 @@ A plugin to check location service.
 
 # 使用方法
 ```
-pubspec.yaml：
+pubspec.yaml:
   location_service_check:
     git:
       url: https://github.com/EchoPuda/location_service_check.git
