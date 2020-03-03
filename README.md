@@ -3,6 +3,8 @@
 A plugin to check location service.
 
 ## Getting Started
+支持Android和iOS
+<br>
 
 # 使用方法
 ```
