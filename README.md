@@ -7,8 +7,8 @@ A plugin to check location service.
 # 使用方法
 pubspec.yaml：
   location_service_check:
-    git:
-      url: https://github.com/EchoPuda/location_service_check.git
+    \ngit:
+      \nurl: https://github.com/EchoPuda/location_service_check.git
       
 # import
 import 'package:location_service_check/location_service_check.dart';
