@@ -5,10 +5,11 @@ A plugin to check location service.
 ## Getting Started
 
 # 使用方法
-pubspec.yaml：
+``pubspec.yaml：
   location_service_check:
-    \ngit:
-      \nurl: https://github.com/EchoPuda/location_service_check.git
+    git:
+      url: https://github.com/EchoPuda/location_service_check.git
+``
       
 # import
 import 'package:location_service_check/location_service_check.dart';
