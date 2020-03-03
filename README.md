@@ -21,7 +21,7 @@ import 'package:location_service_check/location_service_check.dart';
 
 # 检查是否开启了定位服务
 ```
-  bool open = await LocationService.checkLocationIsOpen; 
+  bool open = await LocationServiceCheck.checkLocationIsOpen;
 ```
   
 # 打开定位设置页
