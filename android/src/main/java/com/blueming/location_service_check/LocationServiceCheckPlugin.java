@@ -1,18 +1,23 @@
 package com.blueming.location_service_check;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -77,7 +82,9 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
       checkLocationIsOpen(result);
     } else if ("openSetting".equals(call.method)) {
       openSetting();
-    } else {
+    } else if ("getLocation".equals(call.method)) {
+      getMyLocation(result);
+    }  else {
       result.notImplemented();
     }
   }
@@ -122,6 +129,58 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
     Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
     aContext.startActivity(intent);
+  }
+
+  /**
+   * 获取我的定位
+   */
+  @SuppressWarnings("unchecked")
+  private void getMyLocation(Result result) {
+    Location location = getLocation();
+
+    HashMap locationMap = new HashMap();
+    if (location != null) {
+      double latitude = location.getLatitude();
+      double longitude = location.getLongitude();
+      locationMap.put("latitude", latitude);
+      locationMap.put("longitude", longitude);
+
+      channel.invokeMethod("receiveLocation",locationMap);
+    } else {
+      locationMap.put("error", "定位失败");
+      channel.invokeMethod("receiveLocation",locationMap);
+    }
+
+  }
+
+  private String provider;
+
+  /**
+   * 获取定位
+   */
+  private Location getLocation() {
+    // 获取定位服务
+    LocationManager locationManager = (LocationManager) aContext.getSystemService(Context.LOCATION_SERVICE);
+
+    List<String> list = locationManager.getProviders(true);
+
+    if (list.contains(LocationManager.GPS_PROVIDER)) {
+      provider = LocationManager.GPS_PROVIDER;
+    } else if (list.contains(LocationManager.NETWORK_PROVIDER)) {
+      provider = LocationManager.NETWORK_PROVIDER;
+    }
+
+    if (provider != null) {
+      if (ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+              && ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        return null;
+      }
+
+      return locationManager.getLastKnownLocation(provider);
+
+    }
+
+    return null;
   }
 
   @Override

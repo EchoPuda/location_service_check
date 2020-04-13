@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class LocationServiceCheck {
+/// @author jm
+class LocationServiceCheck{
   static const MethodChannel _channel =
       const MethodChannel('location_service_check');
 

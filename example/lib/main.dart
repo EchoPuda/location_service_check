@@ -4,6 +4,8 @@ import 'package:location_service_check/location_service_check.dart';
 
 void main() => runApp(MyApp());
 
+/// demo
+/// @author jm
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
