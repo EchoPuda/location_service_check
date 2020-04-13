@@ -1,18 +1,23 @@
 package com.blueming.location_service_check;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -77,6 +82,8 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
       checkLocationIsOpen(result);
     } else if ("openSetting".equals(call.method)) {
       openSetting();
+    } else if ("getLocation".equals(call.method)) {
+      getLocation();
     } else {
       result.notImplemented();
     }
@@ -122,6 +129,56 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
     Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
     aContext.startActivity(intent);
+  }
+
+  @SuppressWarnings("uncheckWarning")
+  private void getLocation() {
+    Location location = getMyLocation();
+    HashMap map = new HashMap();
+    if (location != null) {
+      map.put("latitude", location.getLatitude());
+      map.put("longitude", location.getLongitude());
+      channel.invokeMethod("receiveLocation", map);
+    } else {
+      map.put("error", "error");
+      channel.invokeMethod("receiveLocation", map);
+    }
+  }
+
+  private String provider;
+
+  private Location getMyLocation() {
+    //获取定位服务
+    LocationManager locationManager = (LocationManager) aContext.getSystemService(Context.LOCATION_SERVICE);
+    //获取当前可用的位置控制器
+    List<String> list = locationManager.getProviders(true);
+
+    if (list.contains(LocationManager.GPS_PROVIDER)) {
+//            GPS位置控制器
+      provider = LocationManager.GPS_PROVIDER;//GPS定位
+    } else if (list.contains(LocationManager.NETWORK_PROVIDER)) {
+//            网络位置控制器
+      provider = LocationManager.NETWORK_PROVIDER;//网络定位
+    }
+
+    if (provider != null) {
+      if (ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+              && ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        return null;
+      }
+
+      return locationManager.getLastKnownLocation(provider);
+    }
+
+
+    return null;
   }
 
   @Override
