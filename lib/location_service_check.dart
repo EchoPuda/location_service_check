@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:rxdart/rxdart.dart';
 
 class LocationServiceCheck {
-  static const MethodChannel _channel =
-      const MethodChannel('location_service_check');
+  static MethodChannel _channel =
+      const MethodChannel('location_service_check')..setMethodCallHandler(_handler);
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -21,4 +22,51 @@ class LocationServiceCheck {
   static Future openLocationSetting() async {
     await _channel.invokeMethod("openSetting");
   }
+
+  /// 获取我的定位（经纬度）
+  static Future<LocationData> getMyLocation() async {
+    await _channel.invokeMethod("getLocation");
+
+    waitForLocation().listen((location) {
+      return location;
+    });
+
+  }
+
+  static PublishSubject<LocationData> publishSubject = PublishSubject<LocationData>();
+
+  static PublishSubject<LocationData> waitForLocation() {
+    return publishSubject;
+  }
+
+  static receiveLocation(Map map) async {
+    double lat = map["latitude"];
+    double log = map["longitude"];
+
+    LocationData locationData = new LocationData()
+      ..latitude = lat
+      ..longitude = log;
+
+    publishSubject.add(locationData);
+
+  }
+
+  static Future<dynamic> _handler(MethodCall methodCall) {
+    if ("receiveLocation" == methodCall.method) {
+      receiveLocation(methodCall.arguments);
+    }
+    return Future.value(true);
+  }
+
+}
+
+/// [latitude] 纬度，[longitude] 经度
+class LocationData {
+  double latitude;
+  double longitude;
+
+  LocationData({this.latitude, this.longitude});
+
+  @override
+  String toString() => "latitude: $latitude, longitude: $longitude";
 }
