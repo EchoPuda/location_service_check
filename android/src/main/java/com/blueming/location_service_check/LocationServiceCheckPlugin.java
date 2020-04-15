@@ -33,7 +33,7 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
-  private MethodChannel channel;
+  private static MethodChannel channel;
 
   private LocationManager locationManager;
 
@@ -59,7 +59,7 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
   public static void registerWith(Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "location_service_check");
+    channel = new MethodChannel(registrar.messenger(), "location_service_check");
     channel.setMethodCallHandler(new LocationServiceCheckPlugin());
     aContext = registrar.context();
   }
@@ -131,10 +131,9 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
     aContext.startActivity(intent);
   }
 
-  @SuppressWarnings("uncheckWarning")
   private void getLocation() {
     Location location = getMyLocation();
-    HashMap map = new HashMap();
+    HashMap<String, Object> map = new HashMap<>();
     if (location != null) {
       map.put("latitude", location.getLatitude());
       map.put("longitude", location.getLongitude());
@@ -145,40 +144,24 @@ public class LocationServiceCheckPlugin implements FlutterPlugin, MethodCallHand
     }
   }
 
-  private String provider;
-
   private Location getMyLocation() {
-    //获取定位服务
-    LocationManager locationManager = (LocationManager) aContext.getSystemService(Context.LOCATION_SERVICE);
-    //获取当前可用的位置控制器
-    List<String> list = locationManager.getProviders(true);
-
-    if (list.contains(LocationManager.GPS_PROVIDER)) {
-//            GPS位置控制器
-      provider = LocationManager.GPS_PROVIDER;//GPS定位
-    } else if (list.contains(LocationManager.NETWORK_PROVIDER)) {
-//            网络位置控制器
-      provider = LocationManager.NETWORK_PROVIDER;//网络定位
+    if (ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+      return null;
     }
+    List<String> providers = locationManager.getAllProviders();
+    Location bestLocation = null;
+    for (String provider : providers) {
 
-    if (provider != null) {
-      if (ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-              && ActivityCompat.checkSelfPermission(aContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
-        return null;
+      Location l = locationManager.getLastKnownLocation(provider);
+      if (l == null) {
+        continue;
       }
-
-      return locationManager.getLastKnownLocation(provider);
+      if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+        // Found best last known location: %s", l);
+        bestLocation = l;
+      }
     }
-
-
-    return null;
+    return bestLocation;
   }
 
   @Override

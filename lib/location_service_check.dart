@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:rxdart/rxdart.dart';
 
-/// @author jm
-class LocationServiceCheck{
-  static const MethodChannel _channel =
-      const MethodChannel('location_service_check');
+class LocationServiceCheck {
+  static MethodChannel _channel =
+  const MethodChannel('location_service_check')..setMethodCallHandler(_handler);
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -24,20 +24,13 @@ class LocationServiceCheck{
   }
 
   /// 获取我的定位（经纬度）
-  static Future<LocationData> getMyLocation() async {
-    await _channel.invokeMethod("getLocation");
+  static PublishSubject<LocationData> getMyLocation() {
+    _channel.invokeMethod("getLocation");
 
-    waitForLocation().listen((location) {
-      return location;
-    });
-
+    return publishSubject;
   }
 
   static PublishSubject<LocationData> publishSubject = PublishSubject<LocationData>();
-
-  static PublishSubject<LocationData> waitForLocation() {
-    return publishSubject;
-  }
 
   static receiveLocation(Map map) async {
     double lat = map["latitude"];
