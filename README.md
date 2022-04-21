@@ -2,6 +2,8 @@
 
 A plugin to check location service.
 
+nullsafety 版本请查阅https://github.com/EchoPuda/location_service_check_nullsafety
+
 ## Getting Started
 支持Android和iOS
 <br>
